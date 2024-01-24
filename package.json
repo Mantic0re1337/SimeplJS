@@ -1,0 +1,23 @@
+{
+  "name": "simplejs-project",
+  "version": "1.0.0",
+  "description": "A project to learn how to write a frontend framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve:examples": "npx http-server . -o ./examples/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mantic0re1337/SimeplJS.git"
+  },
+  "private": true,
+  "directories": {
+    "example": "examples"
+  },
+  "keywords": [],
+  "author": "Mantikor",
+  "workspaces": [
+    "packages/runtime"
+  ]
+}

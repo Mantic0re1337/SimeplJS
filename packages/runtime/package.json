@@ -1,0 +1,28 @@
+{
+  "name": "simplejs",
+  "version": "1.0.0",
+  "description": "The framework",
+  "main": "dist/simplejs.js",
+  "scripts": {
+    "prepack": "npm run build",
+    "build": "rollup -c",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "files": [
+    "dist/simplejs.js"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "jsdom": "^24.0.0",
+    "rollup": "^4.9.6",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-filesize": "^10.0.0",
+    "vitest": "^1.2.1"
+  }
+}
