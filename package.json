@@ -19,5 +19,6 @@
   "author": "Mantikor",
   "workspaces": [
     "packages/runtime"
-  ]
+  ],
+  "type": "module"
 }

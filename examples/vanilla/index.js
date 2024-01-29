@@ -1,8 +1,16 @@
+import * as pkg from "simplejs/src/h.js";
+import * as mount from "simplejs/src/mount-dom.js";
+
+
 const todos = ["Walk the dog", "Water the plants", "go to work"]
 
 const addTodoInput = document.getElementById("new_todo")
 const addTodoButton = document.getElementById("add_todo")
 const todoList = document.getElementById("todo_list")
+
+const vdom = pkg.h("p", {}, ["GOTCHA"]);
+const vbody = document.getElementsByTagName("body")
+mount.mountDom(vdom, vbody);
 
 for(const todo of todos)
 {
