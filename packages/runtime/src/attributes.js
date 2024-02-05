@@ -1,5 +1,3 @@
-import {removeAttribute, setAttribute} from "jsdom/lib/jsdom/living/attributes.js";
-
 export function setAttributes(el, attrs){
     const{class: className, style, ...otherAttrs } = attrs;
 

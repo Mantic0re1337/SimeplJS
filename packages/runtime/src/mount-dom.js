@@ -1,4 +1,4 @@
-import {DOM_TYPES} from "./h.js";
+import { DOM_TYPES } from "./h.js";
 import { setAttributes } from './attributes.js';
 import { addEventListeners } from './events.js';
 
