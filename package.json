@@ -1,5 +1,5 @@
 {
-  "name": "simplejs-project",
+  "name": "simplejs_manticore-project",
   "version": "1.0.0",
   "description": "A project to learn how to write a frontend framework",
   "main": "index.js",
@@ -20,5 +20,8 @@
   "workspaces": [
     "packages/runtime"
   ],
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "simplejs_manticore": "^1.0.0"
+  }
 }

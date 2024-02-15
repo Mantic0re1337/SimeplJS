@@ -28,7 +28,7 @@ function mapToTextNodes(children){
     typeof child === "string" ? hString(child) : child);
 }
 
-function hString(str){
+export function hString(str){
     return{
         type: DOM_TYPES.TEXT,
         value: str

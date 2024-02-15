@@ -1,1 +1,2 @@
-console.log('This will soon be a frontend framework!')
+import {createApp} from "./app.js";
+import  {h, hString, hFragment} from "./h.js";

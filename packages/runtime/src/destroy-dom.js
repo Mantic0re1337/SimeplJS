@@ -1,7 +1,7 @@
-import {removeEvenListeners} from './events.js';
+import {removeEventListeners} from './events.js';
 import {DOM_TYPES} from "./h.js";
 
-export function destoryDom(vdom){
+export function destroyDom(vdom){
     const {type} = vdom
 
     switch(type) {
@@ -35,17 +35,17 @@ function removeTextNode(vdom){
 
 function removeFragmentNode(vdom){
     const {children} = vdom;
-    children.forEach(destoryDom);
+    children.forEach(destroyDom);
 }
 
 function removeElementNode(vdom){
     const{el, children, listeners} = vdom;
 
     el.remove();
-    children.forEach(destoryDom);
+    children.forEach(destroyDom);
 
     if(listeners){
-        removeEvenListeners(listeners, el);
+        removeEventListeners(listeners, el);
         delete vdom.listeners;
     }
 }

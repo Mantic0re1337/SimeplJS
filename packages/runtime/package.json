@@ -1,5 +1,5 @@
 {
-  "name": "simplejs",
+  "name": "simplejs_manticore",
   "version": "1.0.0",
   "description": "The framework",
   "main": "dist/simplejs.js",
