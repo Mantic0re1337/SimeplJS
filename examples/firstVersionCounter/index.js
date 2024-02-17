@@ -1,6 +1,5 @@
-import {createApp} from "../../packages/runtime/src/app.js";
-import {h, hString, hFragment} from "../../packages/runtime/src/h.js";
-
+import {h, hString, hFragment} from "../../node_modules/simplejs_manticore/dist/simplejs_manticore.js";
+import {createApp} from "../../node_modules/simplejs_manticore/dist/simplejs_manticore.js";
 
 createApp({
     state: 0,

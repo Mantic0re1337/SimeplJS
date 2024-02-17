@@ -5,7 +5,7 @@ export default {
 plugins: [cleanup()],
 output: [
     {
-        file: 'dist/simplejs.js',
+        file: 'dist/simplejs_manticore.js',
 format: 'esm',
 plugins: [filesize()],
 },

@@ -1,8 +1,8 @@
 {
   "name": "simplejs_manticore",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "The framework",
-  "main": "dist/simplejs.js",
+  "main": "dist/simplejs_manticore.js",
   "scripts": {
     "prepack": "npm run build",
     "build": "rollup -c",
@@ -12,7 +12,7 @@
     "test:run": "vitest run"
   },
   "files": [
-    "dist/simplejs.js"
+    "dist/simplejs_manticore.js"
   ],
   "keywords": [],
   "author": "",

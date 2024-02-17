@@ -1,127 +1,158 @@
-import { h }from "../../packages/runtime/src/h.js";
-import { mountDom } from "../../packages/runtime/src/mount-dom.js";
+import {h, hString, hFragment} from "../../node_modules/simplejs_manticore/dist/simplejs_manticore.js";
+import {createApp} from "../../node_modules/simplejs_manticore/dist/simplejs_manticore.js";
 
-
-const todos = ["Walk the dog", "Water the plants", "go to work"]
-
-const addTodoInput = document.getElementById("new_todo")
-const addTodoButton = document.getElementById("add_todo")
-const todoList = document.getElementById("todo_list")
-
-const vdom = h("p", {}, ["GOTCHA"]);
-const vbody = document.body;
-mountDom(vdom, vbody);
-
-for(const todo of todos)
-{
-    todoList.append(renderTodoInReadMode(todo))
+const state = {
+    currentTodo: "",
+    edit: {
+        idx: null,
+        original: null,
+        edited: null,
+    },
+    todos: ["Walk the dog", "Water the plants"],
 }
 
-addTodoInput.addEventListener("input", () => {
-    addTodoButton.disabled = addTodoInput.value.length < 3
-})
+const reducers = {
+    "update-current-todo" : (state, currentTodo) => ({
+        ...state,
+        currentTodo
+    }),
 
-addTodoInput.addEventListener("keydown", ({key}) => {
-    if(key === "Enter" && addTodoInput.value.length >= 3)
-    {
-        addTodo()
-    }
-})
+    "add-todo": (state) => ({
+        ...state,
+        currentTodo: "",
+        todos: [...state.todos, state.currentTodo]
+    }),
 
-addTodoButton.addEventListener("click", () =>
-    {
-        addTodo()
-    }
-)
-
-// Functions
-function renderTodoInReadMode(todo) {
-    const li = document.createElement("li")
-    const span = document.createElement("span")
-    const button = document.createElement("button")
-
-    span.textContent = todo
-    span.addEventListener("dblclick", () => {
-        const idx = todos.indexOf(todo)
-
-        todoList.replaceChild(renderTodoInEditMode(todo), todoList.childNodes[idx])
+    "start-editing-todo": (state, idx) => ({
+        ...state,
+        edit: {
+            idx,
+            original: state.todos[idx],
+            edited: state.todos[idx]
         }
+    }),
+
+    "edit-todo": (state, edited) => ({
+        ...state,
+        edit: {...state.edit, edited}
+    }),
+
+    "save-edited-todo": (state) => {
+        const todos = [...state.todos]
+        todos[state.edit.idx] = state.edit.edited
+
+        return {
+            ...state,
+            edit: {idx: null, original: null, edited: null},
+            todos
+        }
+    },
+
+    'cancel-editing-todo': (state) => ({
+        ...state,
+        edit: { idx: null, original: null, edited: null },
+    }),
+
+    "remove-todo": (state, idx) => ({
+        ...state,
+        todos: state.todos.filter((_, i) => i !== idx)
+    })
+}
+
+function App(state, emit) {
+    return hFragment([
+        h("h1", {}, ["My Todo's"]),
+        CreateTodo(state, emit),
+        TodoList(state, emit)
+    ])
+}
+
+function CreateTodo({ currentTodo }, emit) {
+    return h('div', {}, [
+        h('label', { for: 'todo-input' }, ['New TODO']),
+    h('input', {
+        type: 'text',
+        id: 'todo-input',
+        value: currentTodo,
+    on: {
+        input: ({ target }) => emit('update-current-todo', target.value),
+
+        keydown: ({ key }) => {
+            if (key === 'Enter' && currentTodo.length >= 3) {
+                emit('add-todo')
+            }
+        },
+    },
+}),
+    h(
+        'button',
+        {
+            disabled: currentTodo.length < 3,
+    on: { click: () => emit('add-todo') },
+},
+    ['Add']
+),
+])
+}
+
+function TodoList({ todos, edit }, emit) {
+    return h(
+        'ul',
+        {},
+        todos.map((todo, i) => TodoItem({ todo, i, edit }, emit))
     )
-    li.append(span)
-
-    button.textContent = "Done"
-    button.addEventListener("click", () => {
-        const idx = todos.indexOf(todo)
-        removeTodo(idx)
-    })
-    li.append(button)
-
-    return li
-}
-function addTodo() {
-    const description = addTodoInput.value
-    todos.push(description)
-
-    const todo = renderTodoInReadMode(description)
-    todoList.append(todo)
-
-    addTodoButton.value = ""
-    addTodoButton.disabled = true
 }
 
-function removeTodo(index) {
-    todos.splice(index, 1)
-    todoList.childNodes[index].remove()
-}
-
-
-function renderTodoInEditMode(todo){
-    const li = document.createElement("li")
-    const input = document.createElement("input")
-    input.type = "text"
-    input.value = todo
-    li.append(input)
-    const saveButton = document.createElement("button")
-    const cancelButton = document.createElement("button")
-
-    input.textContent = todo
-    saveButton.textContent = "Save"
-    cancelButton.textContent = "Cancel"
-
-    input.addEventListener("input", () => {
-        addTodoButton.disabled = input.value.length < 3
-    })
-
-    input.addEventListener("keydown", ({key}) => {
-        if(key === "Enter" && input.value.length >= 3)
+function TodoItem({ todo, i, edit }, emit) {
+    const isEditing = edit.idx === i
+    return isEditing
+        ? h('li', {}, [
+    h('input', {
+        value: edit.edited,
+    on: {
+        input: ({ target }) => emit('edit-todo', target.value)
+    },
+}),
+    h(
+        'button',
         {
-            const idx = todos.indexOf(todo)
-            updateTodo(idx, input.value)
-        }
-    })
-
-    saveButton.addEventListener("click", () =>
-    {
-        if(input.value.length >= 3)
+            on: {
+                click: () => emit('save-edited-todo')
+}
+},
+    ['Save']
+),
+    h(
+        'button',
         {
-            const idx = todos.indexOf(todo)
-            updateTodo(idx, input.value)
-        }
-    })
-
-    cancelButton.addEventListener("click", () => {
-        const idx = todos.indexOf(todo)
-        todoList.replaceChild(renderTodoInReadMode(todo), todoList.childNodes[idx])
-    })
-    li.append(saveButton)
-    li.append(cancelButton)
-
-    return li
+            on: {
+                click: () => emit('cancel-editing-todo')
+}
+},
+    ['Cancel']
+),
+])
+: h('li', {}, [
+    h(
+        'span',
+        {
+            on: {
+                dblclick: () => emit('start-editing-todo', i)
+}
+},
+    [todo]
+),
+    h(
+        'button',
+        {
+            on: {
+                click: () => emit('remove-todo', i)
+}
+},
+    ['Done']
+),
+])
 }
 
-function updateTodo(index, description) {
-    todos[index] = description
-    const todo = renderTodoInReadMode(description)
-    todoList.replaceChild(todo, todoList.childNodes[index])
-}
+createApp({state, reducers, view: App}).mount(document.body)
 
