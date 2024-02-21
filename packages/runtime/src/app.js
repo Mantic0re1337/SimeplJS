@@ -1,6 +1,7 @@
 import {destroyDom} from "./destroy-dom.js";
 import {mountDom} from "./mount-dom.js";
 import {Dispatcher} from "./dispatcher.js";
+import {patchDOM} from "./patch-dom.js";
 
 export function createApp({state, view, reducers = {}}){
     let parentEl = null;
@@ -22,24 +23,26 @@ export function createApp({state, view, reducers = {}}){
         subscriptions.push(subs);
     }
 
-    function renderApp(){
-        if(vdom){
-            destroyDom(vdom);
-        }
-
-        vdom = view(state, emit);
-        mountDom(vdom, parentEl);
+    function renderApp() {
+        const newVdom = view(state, emit);
+        vdom = patchDOM(vdom, newVdom, parentEl);
     }
 
     return {
-        mount(_parenEl){
-            parentEl = _parenEl;
-            renderApp();
+        mount(_parenEl) {
+            if(vdom === null){
+                parentEl = _parenEl;
+                vdom = view(state, emit)
+                mountDom(vdom, parentEl)
+                return;
+            }
+            throw new Error("You can not mount the DOM more than once initially.");
         },
 
-        unmount(){
+        unmount() {
             destroyDom(vdom);
-            subscriptions.forEach((unsubscribe) => unsubscribe())
+            vdom = null;
+            subscriptions.forEach((unsubscribe) => unsubscribe());
         },
     }
 }
