@@ -89,8 +89,8 @@ class ArrayWithOriginalIndices {
             if (this.#equalsFn(item, this.#array[i])){
                 return i;
             }
-            return -1;
         }
+        return -1;
     }
 
     addItem(item, index){
