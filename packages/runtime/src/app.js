@@ -29,9 +29,9 @@ export function createApp({state, view, reducers = {}}){
     }
 
     return {
-        mount(_parenEl) {
+        mount(_parentEl) {
             if(vdom === null){
-                parentEl = _parenEl;
+                parentEl = _parentEl;
                 vdom = view(state, emit)
                 mountDom(vdom, parentEl)
                 return;

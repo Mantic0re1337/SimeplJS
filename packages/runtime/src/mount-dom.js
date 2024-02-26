@@ -3,20 +3,20 @@ import { setAttributes } from './attributes.js';
 import { addEventListeners } from './events.js';
 
 
-export function mountDom(vdom, parentEl){
+export function mountDom(vdom, parentEl, index){
     switch(vdom.type){
         case DOM_TYPES.TEXT:{
-            createTextNode(vdom, parentEl);
+            createTextNode(vdom, parentEl, index);
             break;
         }
 
         case DOM_TYPES.ELEMENT:{
-            createElementNode(vdom, parentEl);
+            createElementNode(vdom, parentEl, index);
             break;
         }
 
         case DOM_TYPES.FRAGMENT:{
-            createFragmentNode(vdom, parentEl);
+            createFragmentNode(vdom, parentEl, index);
             break;
         }
 
@@ -26,22 +26,42 @@ export function mountDom(vdom, parentEl){
     }
 }
 
-function createTextNode(vdom, parentEl){
+function insert(el, parentEl, index){
+    if(index == null){
+        parentEl.append(el);
+        return;
+    }
+
+    if(index < 0){
+        throw new Error(`Index must be a positive integer, got ${index}`);
+    }
+
+    const children = parentEl.childNodes;
+
+    if(index >= children.length){
+        parentEl.append(el);
+    }
+    else{
+        parentEl.insertBefore(el, children[index]);
+    }
+}
+
+function createTextNode(vdom, parentEl, index){
     const {value} = vdom;
 
     const textNode = document.createTextNode(value);
     vdom.el = textNode;
-    parentEl.append(textNode);
+    insert(textNode, parentEl, index);
 }
 
-function createFragmentNode(vdom, parentEl){
+function createFragmentNode(vdom, parentEl, index){
     const {children} = vdom;
 
     vdom.el = parentEl
-    children.forEach((child) => mountDom(child, parentEl))
+    children.forEach((child, i) => mountDom(child, parentEl, index ? index +1 : null))
 }
 
-function createElementNode(vdom, parentEl){
+function createElementNode(vdom, parentEl, index){
     const {tag, props, children} = vdom;
 
     const element = document.createElement(tag);
@@ -49,7 +69,7 @@ function createElementNode(vdom, parentEl){
     vdom.el = element;
 
     children.forEach((child) => mountDom(child, element));
-    parentEl.append(element);
+    insert(element, parentEl, index);
 }
 
 function addProps(el, props, vdom){
