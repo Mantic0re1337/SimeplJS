@@ -1,10 +1,10 @@
 import {destroyDom} from "./destroy-dom.js";
 import {mountDom} from "./mount-dom.js";
 import {areNodesEqual} from "./nodes-equal.js";
-import {DOM_TYPES} from "./h.js";
+import {DOM_TYPES, extractChildren} from "./h.js";
 import {removeAttribute, setAttribute, removeStyle, setStyle} from "./attributes.js";
 import {objectsDiff} from "./utils/objects.js";
-import {arrayDiff} from "./utils/arrays.js";
+import {arrayDiff, arraysDiffSequence, ARRAY_DIFF_OP} from "./utils/arrays.js";
 import {isNotBlankOrEmptyString} from "./utils/strings.js";
 import {addEventListener} from "./events.js";
 
@@ -20,13 +20,17 @@ export function patchDOM(oldVdom, newVdom, parentEl){
     newVdom.el = oldVdom.el
 
     switch(newVdom.type){
-        case DOM_TYPES.TEXT:
+        case DOM_TYPES.TEXT: {
             patchText(oldVdom, newVdom);
             return newVdom;
-        case DOM_TYPES.ELEMENT:
+        }
+        case DOM_TYPES.ELEMENT:{
             patchElement(oldVdom, newVdom);
             break;
+        }
     }
+
+    patchChildren(oldVdom, newVdom);
     return newVdom;
 }
 
@@ -77,7 +81,7 @@ function patchAttrs(el, oldAttrs, newAttrs){
     for(const attr of removed){
         removeAttribute(el, attr);
     }
-    for(const attr of added){
+    for(const attr of added.concat(updated)){
         setAttribute(el, attr, newAttrs[attr]);
     }
 }
@@ -109,7 +113,7 @@ function patchStyles(el, oldStyle = {}, newStyle = {}){
         removeStyle(el, style)
     }
 
-    for(const style of added){
+    for(const style of added.concat(updated)){
         setStyle(el, style, newStyle[style])
     }
 }
@@ -124,9 +128,47 @@ function patchEvents(el, oldListeners = {}, oldEvents = {}, newEvents = {}){
     const addedListeners = {}
 
     for(const eventName of added.concat(updated)){
-        const listener = addEventListener(eventName, newEvents[eventName])
+        const listener = addEventListener(eventName, newEvents[eventName], el)
         addedListeners[eventName] = listener;
     }
 
     return addedListeners;
+}
+
+function patchChildren(oldVdom, newVdom){
+    const oldChildren = extractChildren(oldVdom);
+    const newChildren = extractChildren(newVdom);
+    const parentEl = oldVdom.el;
+
+    const diffSeq = arraysDiffSequence(oldChildren, newChildren, areNodesEqual);
+
+    for(const operation of diffSeq){
+        const {originalIndex, index, item} = operation;
+
+        switch (operation.op){
+            case ARRAY_DIFF_OP.ADD: {
+                mountDom(item, parentEl, index);
+                break;
+            }
+            case ARRAY_DIFF_OP.REMOVE: {
+                destroyDom(item);
+                break;
+            }
+            case ARRAY_DIFF_OP.MOVE: {
+                const oldChild = oldChildren[originalIndex];
+                const newChild = newChildren[index];
+                const el = oldChild.el;
+                const elAtTargetIndex = parentEl.childNodes[index];
+
+                parentEl.insertBefore(el, elAtTargetIndex);
+                patchDOM(oldChild, newChild, parentEl);
+                break;
+            }
+            case ARRAY_DIFF_OP.NOOP: {
+                patchDOM(oldChildren[originalIndex], newChildren[index], parentEl);
+                break;
+            }
+
+        }
+    }
 }

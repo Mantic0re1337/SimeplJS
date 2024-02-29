@@ -48,3 +48,22 @@ export function MessageComponent({ message, level }){
     let p = h("p", {}, [message]);
     return hFragment(h("div", {class: `message message--${level}`}, [p]));
 }
+
+export function extractChildren(vdom){
+    if(vdom.children == null){
+        return [];
+    }
+
+    const children = [];
+
+    for(const child of vdom.children){
+        if(child.type === DOM_TYPES.FRAGMENT){
+            children.push(...extractChildren(child, children));
+        }
+        else{
+            children.push(child);
+        }
+    }
+
+    return children;
+}

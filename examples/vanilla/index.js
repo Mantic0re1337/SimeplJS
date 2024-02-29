@@ -1,4 +1,4 @@
-import {h, hString, hFragment} from "../../node_modules/simplejs_manticore/dist/simplejs_manticore.js";
+import {h, hFragment} from "../../node_modules/simplejs_manticore/dist/simplejs_manticore.js";
 import {createApp} from "../../node_modules/simplejs_manticore/dist/simplejs_manticore.js";
 
 const state = {
